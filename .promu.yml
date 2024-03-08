@@ -4,7 +4,7 @@ repository:
     path: github.com/namm2/azure-metrics-exporter
 build:
     binaries:
-        - name: azure_metrics_exporter
+        - name: azure-metrics-exporter
     flags: -a -tags netgo
     ldflags: |
         -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
