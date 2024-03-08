@@ -16,6 +16,12 @@ jobs:
     steps:
     - name: Checkout git
       uses: actions/checkout@v2
+
+    - name: Setup dependancies
+      run: |
+        curl -sLO https://github.com/prometheus/promu/releases/download/v0.15.0/promu-0.15.0.linux-amd64.tar.gz | tar xz
+        mv promu-0.15.0.linux-amd64/promu /usr/bin/promu
+        rm -rf promu-0.15.0.linux-amd64
     
     - name: Log in to the GH Container registry
       uses: docker/login-action@v2
