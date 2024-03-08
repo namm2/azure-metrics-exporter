@@ -12,7 +12,7 @@
 # limitations under the License.
 
 GO    := go
-PROMU := promu
+PROMU := /go/bin/promu
 pkgs   = $(shell $(GO) list ./...)
 
 PREFIX                  ?= $(shell pwd)
