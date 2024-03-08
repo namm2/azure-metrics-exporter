@@ -19,7 +19,7 @@ jobs:
 
     - name: Setup dependancies
       run: |
-        curl -sLO https://github.com/prometheus/promu/releases/download/v0.15.0/promu-0.15.0.linux-amd64.tar.gz | tar xz
+        curl -sL https://github.com/prometheus/promu/releases/download/v0.15.0/promu-0.15.0.linux-amd64.tar.gz -o - | tar xz
         mv promu-0.15.0.linux-amd64/promu /usr/bin/promu
         rm -rf promu-0.15.0.linux-amd64
     
