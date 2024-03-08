@@ -2,18 +2,22 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/RobustPerception/azure_metrics_exporter/config"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/namm2/azure_metrics_exporter/config"
 )
 
 var (
@@ -196,6 +200,46 @@ func NewAzureClient() *AzureClient {
 	}
 }
 
+var azCredential azidentity.WorkloadIdentityCredential
+
+func (ac *AzureClient) getWIAccessToken() error {
+	ctx := context.Background()
+
+	clientId, ok := os.LookupEnv("AZURE_CLIENT_ID")
+	if !ok {
+		return fmt.Errorf("AZURE_CLIENT_ID is not set")
+	}
+	tenantId, ok := os.LookupEnv("AZURE_TENANT_ID")
+	if !ok {
+		return fmt.Errorf("AZURE_TENANT_ID is not set")
+	}
+	tokenfilepath, ok := os.LookupEnv("AZURE_FEDERATED_TOKEN_FILE")
+	if !ok {
+		return fmt.Errorf("AZURE_FEDERATED_TOKEN_FILE is not set")
+	}
+
+	azCredOpts := azidentity.WorkloadIdentityCredentialOptions{
+		ClientID:      clientId,
+		TenantID:      tenantId,
+		TokenFilePath: tokenfilepath,
+	}
+	azClient, err := azidentity.NewWorkloadIdentityCredential(&azCredOpts)
+	if err != nil {
+		return fmt.Errorf("Error getting credential: %v", err)
+	}
+
+	tokenOpts := policy.TokenRequestOptions{
+		Scopes: []string{"https://management.azure.com/.default"},
+	}
+	token, err := azClient.GetToken(ctx, tokenOpts)
+	if err != nil {
+		return fmt.Errorf("Error getting access token: %v", err)
+	}
+	ac.accessToken = token.Token
+	ac.accessTokenExpiresOn = token.ExpiresOn
+	return nil
+}
+
 func (ac *AzureClient) getAccessToken() error {
 	var resp *http.Response
 	var err error
@@ -315,7 +359,7 @@ func (ac *AzureClient) getAzureMetricDefinitionResponse(resource string, metricN
 	apiVersion := "2018-01-01"
 
 	metricsResource := fmt.Sprintf("subscriptions/%s%s", sc.C.Credentials.SubscriptionID, resource)
-	metricsTarget := fmt.Sprintf("%s/%s/providers/microsoft.insights/metricDefinitions?api-version=%s", sc.C.ResourceManagerURL, metricsResource, apiVersion)
+	metricsTarget := fmt.Sprintf("%s/%s/providers/Microsoft.Insights/metricDefinitions?api-version=%s", sc.C.ResourceManagerURL, metricsResource, apiVersion)
 	if metricNamespace != "" {
 		metricsTarget = fmt.Sprintf("%s&metricnamespace=%s", metricsTarget, url.QueryEscape(metricNamespace))
 	}
@@ -567,9 +611,14 @@ func (ac *AzureClient) refreshAccessToken() error {
 	refreshAt := ac.accessTokenExpiresOn.Add(-10 * time.Minute)
 
 	if now.After(refreshAt) {
-		err := ac.getAccessToken()
-		if err != nil {
-			return fmt.Errorf("Error refreshing access token: %v", err)
+		if sc.C.Credentials.WorkloadIdentity {
+			if err := ac.getWIAccessToken(); err != nil {
+				return fmt.Errorf("Error refreshing WI access token: %v", err)
+			}
+		} else {
+			if err := ac.getAccessToken(); err != nil {
+				return fmt.Errorf("Error refreshing access token: %v", err)
+			}
 		}
 	}
 	return nil
