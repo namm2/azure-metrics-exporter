@@ -17,7 +17,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/namm2/azure_metrics_exporter/config"
+	"github.com/namm2/azure-metrics-exporter/config"
 )
 
 var (

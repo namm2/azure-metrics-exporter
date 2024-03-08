@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/namm2/azure_metrics_exporter/config"
+	"github.com/namm2/azure-metrics-exporter/config"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -386,7 +386,7 @@ func main() {
 	})
 
 	http.HandleFunc("/metrics", handler)
-	log.Printf("azure_metrics_exporter listening on port %v", *listenAddress)
+	log.Printf("azure-metrics-exporter listening on port %v", *listenAddress)
 	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
 		log.Fatalf("Error starting HTTP server: %v", err)
 	}

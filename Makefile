@@ -18,7 +18,7 @@ pkgs   = $(shell $(GO) list ./...)
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
 DOCKER_REPO             ?= robustperception
-DOCKER_IMAGE_NAME       ?= azure_metrics_exporter
+DOCKER_IMAGE_NAME       ?= azure-metrics-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
 all: format build test

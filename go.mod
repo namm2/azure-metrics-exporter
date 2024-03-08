@@ -1,4 +1,4 @@
-module github.com/namm2/azure_metrics_exporter
+module github.com/namm2/azure-metrics-exporter
 
 go 1.21
 
