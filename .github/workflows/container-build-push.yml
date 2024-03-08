@@ -20,7 +20,7 @@ jobs:
     - name: Setup dependancies
       run: |
         curl -sL https://github.com/prometheus/promu/releases/download/v0.15.0/promu-0.15.0.linux-amd64.tar.gz -o - | tar xz
-        sudo mv promu-0.15.0.linux-amd64/promu /usr/bin/promu
+        sudo mv promu-0.15.0.linux-amd64/promu /go/bin/promu
         rm -rf promu-0.15.0.linux-amd64
     
     - name: Log in to the GH Container registry
