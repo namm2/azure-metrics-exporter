@@ -1,10 +1,10 @@
 go:
     cgo: false
 repository:
-    path: github.com/RobustPerception/azure_metrics_exporter
+    path: github.com/namm2/azure-metrics-exporter
 build:
     binaries:
-        - name: azure_metrics_exporter
+        - name: azure-metrics-exporter
     flags: -a -tags netgo
     ldflags: |
         -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
@@ -18,8 +18,5 @@ tarball:
 crossbuild:
     platforms:
         - linux/amd64
-        - linux/386
-        - linux/arm
         - linux/arm64
         - darwin/amd64
-        - darwin/386

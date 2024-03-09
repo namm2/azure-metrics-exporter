@@ -135,10 +135,11 @@ func (c *Config) validateAggregations(aggregations []string) error {
 
 // Credentials - Azure credentials
 type Credentials struct {
-	SubscriptionID string `yaml:"subscription_id"`
-	ClientID       string `yaml:"client_id"`
-	ClientSecret   string `yaml:"client_secret"`
-	TenantID       string `yaml:"tenant_id"`
+	SubscriptionID   string `yaml:"subscription_id"`
+	ClientID         string `yaml:"client_id"`
+	ClientSecret     string `yaml:"client_secret"`
+	TenantID         string `yaml:"tenant_id"`
+	WorkloadIdentity bool   `yaml:"workload_identity"`
 
 	XXX map[string]interface{} `yaml:",inline"`
 }

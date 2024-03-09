@@ -1,11 +1,11 @@
-FROM golang:1.11 as builder
-WORKDIR /go/src/github.com/RobustPerception/azure_metrics_exporter
+FROM golang:1.21 as builder
+WORKDIR /go/src/github.com/namm2/azure-metrics-exporter
 COPY . .
 RUN make build
 
-FROM quay.io/prometheus/busybox:latest AS app
+FROM gcr.io/distroless/static AS app
 
-COPY --from=builder /go/src/github.com/RobustPerception/azure_metrics_exporter/azure_metrics_exporter /bin/azure_metrics_exporter
+COPY --from=builder /go/src/github.com/namm2/azure-metrics-exporter/azure-metrics-exporter /bin/azure-metrics-exporter
 
-EXPOSE 9276
-ENTRYPOINT ["/bin/azure_metrics_exporter"]
+USER 1000:1000
+ENTRYPOINT ["/bin/azure-metrics-exporter"]

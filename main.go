@@ -9,11 +9,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/RobustPerception/azure_metrics_exporter/config"
+	"github.com/namm2/azure-metrics-exporter/config"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/version"
+	"github.com/prometheus/client_golang/prometheus/collectors/version"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -24,7 +24,7 @@ var (
 	}
 	ac                    = NewAzureClient()
 	configFile            = kingpin.Flag("config.file", "Azure exporter configuration file.").Default("azure.yml").String()
-	listenAddress         = kingpin.Flag("web.listen-address", "The address to listen on for HTTP requests.").Default(":9276").String()
+	listenAddress         = kingpin.Flag("web.listen-address", "The address to listen on for HTTP requests.").Default(":9090").String()
 	listMetricDefinitions = kingpin.Flag("list.definitions", "List available metric definitions for the given resources and exit.").Bool()
 	listMetricNamespaces  = kingpin.Flag("list.namespaces", "List available metric namespaces for the given resources and exit.").Bool()
 	invalidMetricChars    = regexp.MustCompile("[^a-zA-Z0-9_:]")
@@ -318,10 +318,23 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	err := ac.getAccessToken()
-	if err != nil {
-		log.Fatalf("Failed to get token: %v", err)
+	if sc.C.Credentials.WorkloadIdentity {
+		err := ac.getWIAccessToken()
+		if err != nil {
+			log.Fatalf("Failed to get Workload Identity token: %v", err)
+		}
+	} else {
+		err := ac.getAccessToken()
+		if err != nil {
+			log.Fatalf("Failed to get token: %v", err)
+		}
 	}
+
+	azSubId, ok := os.LookupEnv("AZURE_SUBSCRIPTION_ID")
+	if !ok {
+		fmt.Errorf("AZURE_SUBSCRIPTION_ID is not set")
+	}
+	sc.C.Credentials.SubscriptionID = azSubId
 
 	// Print list of available metric definitions for each resource to console if specified.
 	if *listMetricDefinitions {
@@ -355,7 +368,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	err = ac.listAPIVersions()
+	err := ac.listAPIVersions()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -373,7 +386,7 @@ func main() {
 	})
 
 	http.HandleFunc("/metrics", handler)
-	log.Printf("azure_metrics_exporter listening on port %v", *listenAddress)
+	log.Printf("azure-metrics-exporter listening on port %v", *listenAddress)
 	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
 		log.Fatalf("Error starting HTTP server: %v", err)
 	}

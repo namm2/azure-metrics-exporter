@@ -11,14 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-GO    := GO15VENDOREXPERIMENT=1 go
-PROMU := $(GOPATH)/bin/promu
-pkgs   = $(shell $(GO) list ./... | grep -v /vendor/)
+GO    := go
+PROMU := /go/bin/promu
+pkgs   = $(shell $(GO) list ./...)
 
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
 DOCKER_REPO             ?= robustperception
-DOCKER_IMAGE_NAME       ?= azure_metrics_exporter
+DOCKER_IMAGE_NAME       ?= azure-metrics-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
 all: format build test
@@ -29,7 +29,7 @@ test: build
 
 style:
 	@echo ">> checking code style"
-	@! gofmt -d $(shell find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
+	@! gofmt -d $(shell find . -prune -o -name '*.go' -print) | grep '^'
 
 format:
 	@echo ">> formatting code"
@@ -54,6 +54,6 @@ docker:
 promu:
 	@GOOS=$(shell uname -s | tr A-Z a-z) \
 		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
-		$(GO) get -u github.com/prometheus/promu
+		$(GO) install github.com/prometheus/promu
 
 .PHONY: all style format build test vet tarball docker promu
