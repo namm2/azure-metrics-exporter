@@ -67,6 +67,10 @@ func (c *Collector) extractMetrics(ch chan<- prometheus.Metric, rm resourceMeta,
 		log.Printf("No metric data returned for metric %v at target %v\n", rm.metrics, rm.resourceURL)
 		return
 	}
+	// redact subscription ID
+	if rm.resource.Subscription != "-" {
+		rm.resource.Subscription = "-"
+	}
 
 	for _, value := range metricValueData.Value {
 		// Ensure Azure metric names conform to Prometheus metric name conventions
