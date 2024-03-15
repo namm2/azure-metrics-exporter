@@ -48,7 +48,7 @@ func TestCreateAllResourceLabelsFrom(t *testing.T) {
 			},
 			map[string]string{
 				"azure_location":     "canadaeast",
-				"azure_subscription": "abc123d4-e5f6-g7h8-i9j10-a1b2c3d4e5f6",
+				"azure_subscription": "-",
 				"id":                 "/resourceGroups/prod-rg-001/providers/Microsoft.Compute/virtualMachines/prod-vm-01",
 				"managed_by":         "",
 				"resource_group":     "prod-rg-001",

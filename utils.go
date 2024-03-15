@@ -72,6 +72,10 @@ func CreateAllResourceLabelsFrom(rm resourceMeta) map[string]string {
 	formatTag := "pretty"
 	labels := make(map[string]string)
 
+	if rm.resource.Subscription != "-" {
+		rm.resource.Subscription = "-"
+	}
+
 	for k, v := range rm.resource.Tags {
 		k = strings.ToLower(k)
 		k = "tag_" + k

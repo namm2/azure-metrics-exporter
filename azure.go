@@ -30,6 +30,7 @@ type AzureMetricDefinitionResponse struct {
 }
 
 type metricDefinitionResponse struct {
+	Category string `json:"category"`
 	Dimensions []struct {
 		LocalizedValue string `json:"localizedValue"`
 		Value          string `json:"value"`
@@ -68,6 +69,13 @@ type metricNamespaceResponse struct {
 type AzureMetricValueResponse struct {
 	Value []struct {
 		Timeseries []struct {
+			MetadataValues []struct {
+				Name struct {
+					LocalizedValue string `json:"localizedValue"`
+					Value string `json:"value"`
+				} `json:"name"`
+				Value string `json:"value"`
+			} `json:"metadatavalues"`
 			Data []struct {
 				TimeStamp string  `json:"timeStamp"`
 				Total     float64 `json:"total"`
